@@ -55,7 +55,7 @@ function DifficultyIndexColor( i )
 end
 
 function ColorRGB ( n )
-	local clr = n + SL.Global.ActiveColorIndex + #SL.Colors - 1
+	local clr = n + SL.Global.ActiveColorIndex + #SL.Colors - 2
 	clr = (clr % #SL.Colors) + 1
 	return GetHexColor(clr)
 end

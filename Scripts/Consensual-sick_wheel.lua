@@ -41,7 +41,8 @@ function sick_wheel:create_actors(name, num_items, item_metatable, mx, my)
 	self.num_items= num_items
 	assert(item_metatable, "A metatable for items to be put in the wheel must be provided.")
 	check_metatable(item_metatable)
-	self.focus_pos= math.floor(num_items / 2)
+
+	self.focus_pos= math.floor(num_items / 2) + 1
 	mx= mx or SCREEN_CENTER_X
 	my= my or SCREEN_TOP
 	self.items= {}
@@ -70,6 +71,9 @@ function sick_wheel:maybe_wrap_index(ipos, n, info)
 end
 
 local function calc_start(self, info, pos)
+	if self.disable_repeating and #info < #self.items then
+		return pos
+	end
 	pos= math.floor(pos) - self.focus_pos
 	if self.disable_wrapping then
 		pos= force_to_range(1, pos, #info - #self.items + 1)
@@ -83,7 +87,17 @@ local function call_item_set(self, item_index, info_index)
 	self.items[item_index]:set(self.info_set[info_index])
 end
 
+local function no_repeat_internal_scroll(self, focus_pos)
+	for i, item in ipairs(self.items) do
+		item:transform(i, #self.items, i == focus_pos, focus_pos)
+	end
+end
+
 local function internal_scroll(self, start_pos)
+	if self.disable_repeating and #self.info_set < #self.items then
+		no_repeat_internal_scroll(self, start_pos)
+		return
+	end
 	local shift_amount= start_pos - self.info_pos
 	if math.abs(shift_amount) < #self.items then
 		self.items= table.rotate_left(self.items, shift_amount)
@@ -112,14 +126,35 @@ local function internal_scroll(self, start_pos)
 			call_item_set(self, i, info_index)
 		end
 	end
-	for i, v in ipairs(self.items) do
-		v:transform(i, #self.items, i == self.focus_pos)
+	if self.disable_repeating then
+		for i, item in ipairs(self.items) do
+			item:transform(i, #self.items, i == self.focus_pos, self.focus_pos)
+		end
+	else
+		for i, item in ipairs(self.items) do
+			item:transform(i, #self.items, i == self.focus_pos, self.focus_pos)
+		end
 	end
 end
 
+local function no_repeat_set_info_set(self, pos)
+	self.info_pos= 1
+	for n= 1, #self.info_set do
+		call_item_set(self, n, n)
+	end
+	for n= #self.info_set+1, #self.items do
+		call_item_set(self, n, n)
+	end
+	internal_scroll(self, pos)
+end
+
 function sick_wheel:set_info_set(info, pos)
-	local start_pos= calc_start(self, info, pos)
 	self.info_set= info
+	if self.disable_repeating and #self.info_set < #self.items then
+		no_repeat_set_info_set(self, pos)
+		return
+	end
+	local start_pos= calc_start(self, info, pos)
 	self.info_pos= start_pos
 	for n= 1, #self.items do
 		local index= self:maybe_wrap_index(start_pos, n, info)
@@ -147,7 +182,8 @@ function sick_wheel:scroll_by_amount(a)
 end
 
 function sick_wheel:get_info_at_focus_pos()
-	local index= self:maybe_wrap_index(self.info_pos, self.focus_pos,self.info_set)
+	local index= self:maybe_wrap_index(self.info_pos, self.focus_pos,
+																		 self.info_set)
 	return self.info_set[index]
 end
 
@@ -167,9 +203,9 @@ end
 
 function sick_wheel:find_item_by_info(info)
 	local ret= {}
-	for i, v in ipairs(self.items) do
-		if v.info == info then
-			ret[#ret+1]= v
+	for i, item in ipairs(self.items) do
+		if item.info == info then
+			ret[#ret+1]= item
 		end
 	end
 	return ret

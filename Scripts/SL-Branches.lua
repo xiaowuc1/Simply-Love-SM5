@@ -35,7 +35,8 @@ end
 
 Branch.PlayerOptions = function()
 	if SCREENMAN:GetTopScreen():GetGoToOptions() then
-		return "ScreenPlayerOptions"
+		-- return "ScreenPlayerOptions"
+		return "ScreenPlayerOptionsNew"
 	else
 		return "ScreenGameplay"
 	end

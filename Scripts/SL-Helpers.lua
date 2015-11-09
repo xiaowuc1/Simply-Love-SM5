@@ -43,13 +43,15 @@ function GetStepsTypeForThisGame(type)
 	return "StepsType_" .. game .. "_" .. type
 end
 
--- shim to suppress errors resulting from SM3.95 "Gimmick" charts
-function Actor:hidden(self, flag)
-	-- if a value other than 0 or 1 was passed, don't do anything...
-	if flag == 0 or flag == 1 then
-		self:visible(math.abs(flag - 1))
-	end
-end
+-- -- shim to suppress errors resulting from SM3.95 "Gimmick" charts
+-- function Actor:hidden(flag)
+-- 	-- if a value other than 0 or 1 was passed, don't do anything...
+-- 	if flag == 0 then
+-- 		Actor:visible(true)
+-- 	elseif flag == 1 then
+-- 		Actor:visible(false)
+-- 	end
+-- end
 
 
 function GetNotefieldX( player )

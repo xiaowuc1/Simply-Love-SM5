@@ -19,7 +19,7 @@ return Def.Actor{
 		for player in ivalues(Players) do
 
 			-- see: ./Scripts/SL-PlayerOptions.lua
-			ApplyMods(player)
+			-- ApplyMods(player)
 
 			local pn = ToEnumShortString(player)
 

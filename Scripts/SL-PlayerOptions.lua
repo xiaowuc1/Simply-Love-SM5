@@ -21,7 +21,6 @@ local Overrides = {
 	SpeedModType = {
 		Choices = function() return { "x", "C", "M" } end,
 		ExportOnChange = true,
-		LayoutType = "ShowOneInRow",
 		SaveSelections = function(self, list, pn)
 			for i=1,#list do
 				if list[i] then
@@ -290,6 +289,59 @@ local Overrides = {
 		end
 	},
 	-------------------------------------------------------------------------
+	Steps = {
+		Choices = function()
+			local song = GAMESTATE:GetCurrentSong()
+			local steps = SongUtil.GetPlayableSteps(song)
+			local ret = {}
+
+			for chart in ivalues(steps) do
+				ret[#ret+1] = ToEnumShortString(chart:GetDifficulty()) .. " " .. chart:GetMeter()
+			end
+			return ret
+		end,
+		Values = function()
+			local song = GAMESTATE:GetCurrentSong()
+			local steps = SongUtil.GetPlayableSteps(song)
+			return steps
+		end,
+		LoadSelections = function(self, list, pn)
+			local choice = SL[ToEnumShortString(pn)].ActiveModifiers.Steps or self:Values()[1]
+			local i = FindInTable(choice, self:Values()) or 1
+			list[i] = true
+		end,
+		SaveSelections = function(self, list, pn)
+			local mods, playeroptions = GetModsAndPlayerOptions(pn)
+
+			for i=1,#list do
+				if list[i] then
+					mods.Steps = self:Values()[i]
+				end
+			end
+
+			GAMESTATE:SetCurrentSteps(pn, mods.Steps)
+		end
+	},
+	-------------------------------------------------------------------------
+	Perspective = {
+		Choices = function() return {"Overhead", "Hallway", "Distant", "Incoming", "Space" } end,
+		LoadSelections = function(self, list, pn)
+			local choice = SL[ToEnumShortString(pn)].ActiveModifiers.Persepective or self.Choices[1]
+			local i = FindInTable(choice, self.Choices) or 1
+			list[i] = true
+		end,
+		SaveSelections = function(self, list, pn)
+			local mods, playeroptions = GetModsAndPlayerOptions(pn)
+
+			for i=1,#list do
+				if list[i] then
+					mods.Perspective = self.Choices[i]
+				end
+			end
+		end
+	},
+
+	-------------------------------------------------------------------------
 	Vocalize = {
 		Choices = function()
 			-- Allow users to artbitrarily add new vocalizations to ./Simply Love/Other/Vocalize/
@@ -372,8 +424,11 @@ local OptionRowDefault = {
 	__index = {
 		initialize = function(self, name)
 
+			if not name then return false end
+
 			self.Name = name
-			self.Choices = Overrides[name]:Choices()
+			self.Choices = Overrides[name].Choices
+			self.Values = Overrides[name].Values
 
 			-- define fallback values to use here if an override isn't specified
 			self.LayoutType = Overrides[name].LayoutType or "ShowAllInRow"
