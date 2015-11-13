@@ -36,7 +36,9 @@ local optionrow_choice_mt = {
 						subself:zoom(0.35):y(46):visible(true)
 					end,
 					BeginCommand=function(subself)
-						subself:SetTarget( SCREENMAN:GetTopScreen():GetChild("Overlay"):GetChild("NoteSkin_"..self.choice) )
+						if SCREENMAN:GetTopScreen() then
+							subself:SetTarget( SCREENMAN:GetTopScreen():GetChild("Overlay"):GetChild("NoteSkin_"..self.choice) )
+						end
 					end
 				}
 			end

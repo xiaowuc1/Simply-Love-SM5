@@ -29,9 +29,9 @@ for player in ivalues( GAMESTATE:GetHumanPlayers() ) do
 	-- Add one OptionWheel per human player
 	OptionRowWheels[pn] = setmetatable({}, sick_wheel_mt)
 
-	for key,optionrow in ipairs(Rows) do
+	for optionrow in ivalues(Rows) do
 		-- Add one OptionRowWheel per OptionRow
-		OptionRowWheels[pn][key] = setmetatable({} , sick_wheel_mt)
+		OptionRowWheels[pn][optionrow] = setmetatable({} , sick_wheel_mt)
 	end
 end
 
@@ -75,13 +75,17 @@ local InputHandler = function(event)
 			OptionRowWheels[pn]:scroll_by_amount(-1)
 
 		elseif event.button == "MenuLeft" or event.button == "MenuRight" then
-			local row_num = FindInTable(OptionRowWheels[pn]:get_info_at_focus_pos(), Rows)
 
+			local row = OptionRowWheels[pn]:get_info_at_focus_pos()
 
 			if event.button == "MenuLeft" then
-				OptionRowWheels[pn][row_num]:scroll_by_amount(-1)
+				OptionRowWheels[pn][row]:scroll_by_amount(-1)
 			elseif event.button == "MenuRight" then
-				OptionRowWheels[pn][row_num]:scroll_by_amount(1)
+				OptionRowWheels[pn][row]:scroll_by_amount(1)
+			end
+
+			if CustomOptionRow(row).ExportOnChange then
+				CustomOptionRow(row):SaveSelections(CustomOptionRow(row):Choices() , event.PlayerNumber )
 			end
 		end
 	end
@@ -113,7 +117,7 @@ local t = Def.ActorFrame{
 					if SL[pn].ActiveModifiers[Row] then
 						focus = FindInTable(SL[pn].ActiveModifiers[Row], Choices) or 1
 					end
-					OptionRowWheels[pn][k2]:set_info_set(Choices, focus)
+					OptionRowWheels[pn][Row]:set_info_set(Choices, focus)
 				end
 			end
 		end
@@ -126,6 +130,16 @@ local t = Def.ActorFrame{
 		-- so we can manipulate stuff more easily from there
 		SCREENMAN:GetTopScreen():AddInputCallback( InputHandler )
 	end,
+	OnCommand=function(self) self:sleep(0.15):queuecommand("StartMusic") end,
+	StartMusicCommand=function(self)
+		local song = GAMESTATE:GetCurrentSong()
+		local path = song:GetMusicPath()
+		local preview_length = song:GetSampleLength()
+		local preview_start = song:GetSampleStart()
+
+		SOUND:PlayMusicPart(path, preview_start, preview_length, 0, 1, true, true, true)
+	end,
+	MusicRateChangedMessageCommand=function(self) SM("YO") end,
 	TransitionBackCommand=function(self)
 		SCREENMAN:GetTopScreen():PostScreenMessage("SM_GoToPrevScreen",0)
 	end,
@@ -175,7 +189,7 @@ for player in ivalues(GAMESTATE:GetHumanPlayers()) do
 			end
 		end
 
-		t[#t+1] = OptionRowWheels[pn][k2]:create_actors( "OptionRowChoiceWheel"..ToEnumShortString(player), num_choices, OptionRowChoice_mt, x_pos, k2*35)
+		t[#t+1] = OptionRowWheels[pn][Row]:create_actors( "OptionRowChoiceWheel"..ToEnumShortString(player), num_choices, OptionRowChoice_mt, x_pos, k2*35)
 	end
 end
 
