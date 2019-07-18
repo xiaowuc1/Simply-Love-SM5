@@ -69,7 +69,7 @@ local SL_CustomPrefs =
 	},
 	VisualTheme =
 	{
-		Default = "Hearts",
+		Default = "Pusheen",
 		Choices = {
 			THEME:GetString("ThemePrefs", "Hearts"),
 			THEME:GetString("ThemePrefs", "Arrows"),
@@ -78,9 +78,10 @@ local SL_CustomPrefs =
 			THEME:GetString("ThemePrefs", "Spooky"),
 			THEME:GetString("ThemePrefs", "Gay"),
 			THEME:GetString("ThemePrefs", "Stars"),
+			THEME:GetString("ThemePrefs", "Pusheen"),
 			"🤔" -- emojis are our lingua franca for the 21st century
 		},
-		Values  = { "Hearts", "Arrows", "Bears", "Ducks", "Spooky", "Gay", "Stars", "Thonk" },
+		Values  = { "Hearts", "Arrows", "Bears", "Ducks", "Spooky", "Gay", "Stars", "Pusheen", "Thonk" },
 	},
 	RainbowMode = {
 		Default = false,

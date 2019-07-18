@@ -4,6 +4,7 @@ local songs = {
 	Hearts = "feel",
 	Ducks = "Xuxa fami VRC6",
 	Gay = "Mystical Wheelbarrow Journey",
+	Pusheen = "bakercat.ogg",
 	Spooky = "Spooky Scary Chiptunes",
 	Stars = "Shooting Star - faux VRC6 remix",
 	Thonk = "Da Box of Kardboard Too (feat Naoki vs ZigZag) - TaroNuke Remix",
